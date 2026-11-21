@@ -35,6 +35,18 @@ def test_strip_surface_views():
     assert strip_surface_nospace(s) == "존맛또갈듯10점"
 
 
+def test_is_korean_text():
+    from beta.normalize import is_korean_text
+
+    assert is_korean_text("모닝커피, BGM 맛집")          # a few Latin words are normal in KR3
+    assert is_korean_text("TV에 나온 집이라 가봤는데 대창이 맛있음")
+    assert not is_korean_text("Corkage free가 큰 장점")  # mostly English: dropped from BOTH classes at build
+    assert is_korean_text("👍👍")                         # no letters at all
+    assert not is_korean_text("서비스도到位!")             # Chinese drift
+    assert not is_korean_text("Very nice!")              # English-only
+    assert not is_korean_text("ラーメン 맛있어요")
+
+
 def test_length_bins():
     edges = [20, 50, 150]
     assert bin_labels(edges) == ["<=20", "21-50", "51-150", ">150"]
@@ -69,6 +81,8 @@ def test_clean_generation_accepts(raw, expected):
         ("죄송하지만 그 요청은 도와드릴 수 없습니다.", "refusal"),
         ("[가게 이름]에서 먹은 짬뽕이 맛있었어요.", "placeholder"),
         ("OOO 식당 최고", "placeholder"),
+        ("이탈리안 맛집, 서비스도到位!", "non_korean"),
+        ("중식 음식은 맛있지만, 서비스는 좀 더Improvement needed in service quality", "non_korean"),
         ("", "empty"),
         (None, "empty"),
     ],

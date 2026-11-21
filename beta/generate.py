@@ -30,7 +30,7 @@ import numpy as np
 import pandas as pd
 
 from .config import base_parser, load_config, load_env, set_seed, setup_console
-from .normalize import length_bin
+from .normalize import is_korean_text, length_bin
 from .prompts import build_messages
 
 # ---------------------------------------------------------------- cleaning
@@ -71,6 +71,8 @@ def clean_generation(raw: str | None) -> tuple[str, str | None]:
         return t, "refusal"
     if _PLACEHOLDER.search(t):
         return t, "placeholder"
+    if not is_korean_text(t):
+        return t, "non_korean"
     if len(t) < 3:
         return t, "too_short"
     return t, None
@@ -343,11 +345,19 @@ def main(argv: list[str] | None = None) -> None:
         return
 
     out = interim / "generated.jsonl"
-    done = load_done(out)
-    todo = conds[~conds["cond_id"].isin(done)]
-    print(f"생성 대상 {len(todo):,}개 (이미 완료 {len(done):,}개)")
-    stats = asyncio.run(run(cfg, todo, pool_text, out, args.mock))
-    print("\n결과:")
+    stats: Counter = Counter()
+    retry_rounds = int(cfg["generation"].get("retry_rounds", 3))
+    for round_no in range(1 + retry_rounds):
+        done = load_done(out)
+        todo = conds[~conds["cond_id"].isin(done)]
+        if todo.empty:
+            break
+        if round_no == 0:
+            print(f"생성 대상 {len(todo):,}개 (이미 완료 {len(done):,}개)")
+        else:
+            print(f"\n거절·오류 {len(todo):,}개 재시도 ({round_no}/{retry_rounds}회차)")
+        stats += asyncio.run(run(cfg, todo, pool_text, out, args.mock))
+    print("\n결과 (이번 실행, 재시도 포함):")
     for (name, status), n in sorted(stats.items()):
         print(f"  {name:<10} {status:<9} {n:,}")
     reasons = Counter()

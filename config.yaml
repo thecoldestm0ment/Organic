@@ -28,6 +28,7 @@ generation:
   fewshot_k: 4
   temperatures: [0.7, 1.0]
   max_retries: 6           # 429/5xx는 SDK가 지수 백오프로 재시도
+  retry_rounds: 3          # 거절된 출력(외국어 섞임, 자리표시자 등)을 한 번 실행 안에서 다시 생성하는 횟수
   request_timeout: 60
   # 생성기 5개: 오픈 모델 3개(GPU 서버) + API 모델 2개(팀원).
   # 여러 사람이 나눠 생성해도 조건은 이 목록 전체로 한 번만 뽑아 공유합니다 (README "나눠서 생성").

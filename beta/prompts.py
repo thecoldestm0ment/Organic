@@ -17,6 +17,7 @@ SENTIMENT = {
 }
 
 _TAIL = (
+    "한국어로만 쓰고, 중국어·일본어 글자나 영어 문장을 섞지 마세요.\n"
     "가게 이름은 쓰지 마세요.\n"
     "리뷰 본문만 출력하고, 제목·따옴표·설명·인사말은 붙이지 마세요."
 )
@@ -29,7 +30,8 @@ def _length_rule(n: int) -> str:
         return f"공백 포함 {n}자 안팎의 아주 짧은 한 줄. 절대 {n + 10}자를 넘기지 마세요"
     if n <= 50:
         return f"공백 포함 약 {n}자, 한두 문장. {n + 15}자를 넘기지 마세요"
-    return f"공백 포함 약 {n}자"
+    # the pilot showed long targets coming back at 0.6-0.7x length
+    return f"공백 포함 약 {n}자. 너무 짧게 줄이지 말고 최소 {int(n * 0.8)}자 이상 쓰세요"
 
 
 def _common(category: str, rating: int, target_chars: int) -> str:
@@ -66,6 +68,7 @@ def prompt_c(category: str, rating: int, target_chars: int, examples: list[str])
         "이 사람들과 같은 사람이 쓴 것처럼 말투, 띄어쓰기와 맞춤법 습관, 문장 길이, "
         "표현 방식을 그대로 따라서 새 리뷰를 하나 써 주세요.\n"
         f"{_common(category, rating, target_chars)}\n"
+        "- 예시에 ㅋㅋ, ㅠㅠ, ~, 이모티콘, 맞춤법 실수, 띄어쓰기 습관이 있으면 그런 것도 비슷하게 따라 하세요.\n"
         "- 예시 문장을 베끼지 말고 새로운 내용으로 쓰세요.\n\n"
         f"{_TAIL}"
     )

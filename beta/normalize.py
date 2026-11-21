@@ -57,6 +57,26 @@ def strip_surface_nospace(text: object) -> str:
     return strip_surface(text).replace(" ", "")
 
 
+_FOREIGN_SCRIPT = re.compile(r"[一-鿿぀-ヿ]")  # Han, Hiragana, Katakana
+_LATIN = re.compile(r"[A-Za-z]")
+_LETTER = re.compile(r"[A-Za-z가-힣]")
+
+
+def is_korean_text(text: object, max_latin_ratio: float = 0.3, min_latin: int = 8) -> bool:
+    """False for Chinese/Japanese characters or text that is largely English.
+
+    Some models (Qwen 7B in the pilot) drift into Chinese or English mid-review.
+    Applied to BOTH classes at build time so it cannot become a label shortcut.
+    Short acronyms ("BGM 맛집", "TV에 나온") stay: English only counts once there
+    are at least `min_latin` Latin letters making up over `max_latin_ratio` of letters.
+    """
+    if not isinstance(text, str) or _FOREIGN_SCRIPT.search(text):
+        return False
+    letters = len(_LETTER.findall(text))
+    latin = len(_LATIN.findall(text))
+    return not (latin >= min_latin and latin / max(letters, 1) > max_latin_ratio)
+
+
 def near_dup_key(text: object) -> str:
     return strip_surface_nospace(text)
 

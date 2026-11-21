@@ -14,7 +14,7 @@ import numpy as np
 import pandas as pd
 
 from .config import base_parser, load_config, setup_console
-from .normalize import bin_labels, length_bin, near_dup_key, normalize
+from .normalize import bin_labels, is_korean_text, length_bin, near_dup_key, normalize
 
 SPLITS = ("train", "val", "test")
 
@@ -59,6 +59,9 @@ def assemble(human: pd.DataFrame, gen: pd.DataFrame, conds: pd.DataFrame, cfg: d
     )
     df = pd.concat([hum, llm], ignore_index=True)
     df["text"] = df["text"].map(normalize)  # identical normalization for both classes
+    korean = df["text"].map(is_korean_text)  # same language filter for both classes
+    print("한국어 필터로 제외 (사람 / LLM):", int((~korean & (df["label"] == 0)).sum()), "/", int((~korean & (df["label"] == 1)).sum()))
+    df = df[korean]
     df["length"] = df["text"].str.len()
     h = cfg["human"]
     df = df[(df["length"] >= h["min_chars"]) & (df["length"] <= h["max_chars"])]
