@@ -36,6 +36,9 @@ from .prompts import build_messages
 # ---------------------------------------------------------------- cleaning
 
 _THINK = re.compile(r"^\s*<think>.*?</think>\s*", re.S)
+# Chat special tokens that leak as text from some GGUF conversions, e.g. <|eot_id|>,
+# <|im_end|>, [|endofturn|], </s>. Everything from the first one on is dropped.
+_SPECIAL_TOKEN = re.compile(r"<\|[A-Za-z_]{2,30}\|>|\[\|[A-Za-z_]{2,30}\|\]|</s>")
 _PREAMBLE_LINE = re.compile(r"^.{0,60}(리뷰|작성|물론|다음은|여기).{0,30}[:：]\s*$")
 _LABEL_PREFIX = re.compile(r"^\s*\[?리뷰\]?\s*\d*\s*[:：]\s*")
 _PLACEHOLDER = re.compile(
@@ -50,7 +53,11 @@ def clean_generation(raw: str | None) -> tuple[str, str | None]:
     """Strip chat-style wrapping. Returns (text, reject_reason or None)."""
     if not raw or not raw.strip():
         return "", "empty"
-    t = _THINK.sub("", raw).strip()  # reasoning models may prepend <think>...</think>
+    t = _THINK.sub("", raw)  # reasoning models may prepend <think>...</think>
+    m = _SPECIAL_TOKEN.search(t)
+    if m:
+        t = t[: m.start()]
+    t = t.strip()
     if not t:
         return "", "empty"
     lines = t.splitlines()

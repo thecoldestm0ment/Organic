@@ -41,7 +41,7 @@ ssh [서버명]
 git clone https://github.com/thecoldestm0ment/Organic.git ~/Organic && cd ~/Organic
 
 # Python 환경 (생성·데이터 처리·TF-IDF용, torch 없음)
-conda create -n beta -c conda-forge python=3.11 pandas pyarrow numpy scikit-learn pyyaml tqdm pytest openai -y
+conda create -n beta -c conda-forge python=3.11 git pandas pyarrow numpy scikit-learn pyyaml tqdm pytest openai "httpx<0.28" -y   # 구버전 openai + httpx 0.28 충돌 방지
 conda activate beta
 python -m pytest -q tests/test_units.py     # torch 없이 도는 테스트만
 

@@ -51,6 +51,11 @@ def test_length_bins():
         ("리뷰: 국물이 진하고 맛있어요.", "국물이 진하고 맛있어요."),
         ("물론입니다! 리뷰를 작성해 드릴게요:\n국물이 진하고 맛있어요.", "국물이 진하고 맛있어요."),
         ("직원분이 죄송하다고 하셨지만 음식은 늦게 나왔어요.", "직원분이 죄송하다고 하셨지만 음식은 늦게 나왔어요."),
+        # special tokens leaking from GGUF conversions
+        ("딤섬 만두 모두 맛있고 분위기 좋음<|eot_id|>", "딤섬 만두 모두 맛있고 분위기 좋음"),
+        ("맛있어요<|eot_id|>\nassistant\n또 올게요", "맛있어요"),
+        ("국물이 진해요[|endofturn|]", "국물이 진해요"),
+        ("가성비 좋아요<|im_end|>", "가성비 좋아요"),
     ],
 )
 def test_clean_generation_accepts(raw, expected):

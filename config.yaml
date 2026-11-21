@@ -72,7 +72,8 @@ generation:
       serve_args: [--max-model-len, "4096", --gpu-memory-utilization, "0.85"]
       concurrency: 16
       supports_temperature: true
-      extra_body: {}
+      # 이 GGUF는 대답 끝 토큰(<|eot_id|>)을 글자로 출력해서 멈춤 문자열로 지정 (정리 단계에서도 잘라냄)
+      extra_body: {stop: ["<|eot_id|>", "<|end_of_text|>"]}
     # API 모델 (키는 .env). 모델 이름은 생성하는 사람이 현재 쓸 수 있는 것으로 바꿔도 됩니다 (조건과 무관).
     - name: gpt
       family: openai
