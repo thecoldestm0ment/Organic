@@ -170,6 +170,19 @@ Colab에서는 이 폴더를 올리고 `pip install -r requirements.txt` 후 `!p
 - Gemini 생각(thinking) 토큰이 많이 나올 때: `extra_body: {reasoning_effort: none}` 시도
 - 생성기 목록을 바꿨으면 `--replan` (기존 생성 결과는 `.bak` 으로 옮겨짐)
 
+## 베타 벤치마크 (`benchmark_22a67908.zip`)
+
+팀 공통 시험지입니다. 압축을 풀면 `benchmark/` 폴더가 나오고, 규칙은 그 안의 `PROTOCOL.md` 에 있습니다.
+
+- 사람 2,338 + LLM 2,338 (GPT: gpt-4.1-mini, Claude: claude-haiku-4-5, 프롬프트 A·C), 길이 구간별로 수를 맞춤
+- 테스트셋 sha256 `22a67908...` (점수를 공유할 때 이 값이 같아야 같은 시험지)
+- 생성기 hold-out 실험은 `logo_openai`, `logo_anthropic` 두 개
+- TF-IDF 결과 보고서 `REPORT_tfidf.md` 포함
+
 ## 라이선스
 
-KR3는 CC BY-NC-SA 4.0입니다. 팀 내부·비상업 용도로만 쓰고 `data/`, `benchmark/` 는 공개 저장소에 올리지 마세요.
+- 코드: 이 저장소의 코드
+- 데이터: 사람 리뷰는 KR3 (https://huggingface.co/datasets/leey4n/KR3, CC BY-NC-SA 4.0)에서 가져와 정규화·필터링했습니다.
+  `benchmark_*.zip` 도 같은 **CC BY-NC-SA 4.0** 을 따릅니다: 출처(KR3) 표시, 비상업 용도만, 수정본도 같은 라이선스.
+- LLM 리뷰는 탐지 연구용 합성 데이터입니다. 실제 리뷰로 게시하는 데 쓰면 안 됩니다.
+- `data/`, `results/` 의 중간 파일은 올리지 않습니다.

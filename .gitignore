@@ -9,3 +9,4 @@ benchmark/
 predictions/
 *.zip
 logs/
+!benchmark_*.zip
